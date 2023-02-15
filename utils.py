@@ -33,7 +33,7 @@ class Queue:
           Dequeue the earliest enqueued item still in the queue. This
           operation removes the item from the queue.
         """
-        return self.list.pop(0)
+        return self.list.pop()
 
     def isEmpty(self):
         "Returns true if the queue is empty"
