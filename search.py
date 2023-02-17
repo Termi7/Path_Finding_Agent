@@ -30,6 +30,7 @@ def a_star(start, end, p1, p2):
     visited = []
     path = []
     priorityq.push(start, 0)
+    start.current_node_cost= 0
 
     while not priorityq.isEmpty():
         curr_node = priorityq.pop()
@@ -54,7 +55,7 @@ def a_star(start, end, p1, p2):
             # Check if node is within the polygon
             inside_polygon = False
             for p in p1:
-                if p.contains_point(node_position, radius=-1):
+                if p.contains_point(node_position, radius=-.5):
                     inside_polygon = True
                     break
             if inside_polygon:
@@ -63,7 +64,6 @@ def a_star(start, end, p1, p2):
             # Make sure not visited
             if node_position in visited:
                 continue
-
             # Create new node
             new_node = Point(node_position[0], node_position[1], curr_node)
 
@@ -73,20 +73,22 @@ def a_star(start, end, p1, p2):
             action_cost =0
 
         # Add children to the heap with estimated cost
+        # action_cost= 0
         for child in children:
+            action_cost =0
             inside_polygon = False
             for p in p2:
-                if p.contains_point([child.x, child.y], radius=-1):
+                if p.contains_point([child.x, child.y], radius=-.5):
                     inside_polygon = True
+                    child.current_node_cost= curr_node.current_node_cost + 1.5
+                    action_cost = child.current_node_cost
                 break
-            if inside_polygon:
-                action_cost = 1.5 + action_cost
-            else:
-                action_cost = 1 + action_cost
+            if not inside_polygon:
+                child.current_node_cost = curr_node.current_node_cost + 1
+                action_cost = child.current_node_cost
             le = child.to_tuple()
             en = end.to_tuple()
             estimated_cost = math.sqrt((le[0] - en[0]) ** 2 + (le[1] - en[1]) ** 2)
-
             priorityq.update(child, estimated_cost + action_cost)
 
 
@@ -185,7 +187,7 @@ def dfs(start, end, p1, p2):
 
             inside_polygon = False
             for p in p1:
-                if p.contains_point(node_position, radius=-1):
+                if p.contains_point(node_position, radius=-.5):
                     inside_polygon = True
                     break
             if inside_polygon:
@@ -243,7 +245,7 @@ def bfs(start, end, p1, p2):
 
             inside_polygon = False
             for p in p1:
-                if p.contains_point(node_position, radius=-1):
+                if p.contains_point(node_position, radius=-.5):
                     inside_polygon = True
                     break
             if inside_polygon:

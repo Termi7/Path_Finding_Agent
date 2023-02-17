@@ -4,10 +4,11 @@ MAX = 50
 
 
 class Point:
-    def __init__(self, x, y, parent=None):
+    def __init__(self, x, y, parent=None,current_node_cost=None ):
         self.x = x
         self.y = y
         self.parent= parent
+        self.current_node_cost= current_node_cost
 
     def __str__(self):
         return f'({self.x}, {self.y})'
