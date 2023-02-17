@@ -75,12 +75,12 @@ def a_star(start, end, p1, p2):
         # Add children to the heap with estimated cost
         # action_cost= 0
         for child in children:
-            action_cost =0
+            action_cost = 0
             inside_polygon = False
             for p in p2:
                 if p.contains_point([child.x, child.y], radius=-.5):
                     inside_polygon = True
-                    child.current_node_cost= curr_node.current_node_cost + 1.5
+                    child.current_node_cost = curr_node.current_node_cost + 1.5
                     action_cost = child.current_node_cost
                 break
             if not inside_polygon:
