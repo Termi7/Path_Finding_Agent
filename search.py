@@ -27,16 +27,18 @@ def gen_polygons(worldfilepath):
 
 def a_star(start, end, p1, p2):
     priorityq = PriorityQueue()
-    visited = []
+    visited = {}
     path = []
     priorityq.push(start, 0)
-    start.current_node_cost= 0
+    start.current_node_cost = 0
+    estimated_cost=0
 
     while not priorityq.isEmpty():
         curr_node = priorityq.pop()
 
         if curr_node.x == end.x and curr_node.y == end.y:
             current = curr_node
+            print(curr_node.current_node_cost+ estimated_cost)
             while current is not None:
                 path.append(Point(current.x, current.y))
                 current = current.parent
@@ -61,24 +63,26 @@ def a_star(start, end, p1, p2):
             if inside_polygon:
                 continue
 
-            # Make sure not visited
-            if node_position in visited:
+
+            node_position = tuple(node_position)
+            # Make sure not visited and that you have a better cost
+            if node_position in visited and curr_node.current_node_cost >= visited[node_position]:
                 continue
+
+            visited[node_position] = curr_node.current_node_cost
             # Create new node
             new_node = Point(node_position[0], node_position[1], curr_node)
 
             # Append
             children.append(new_node)
-            visited.append(node_position)
-            action_cost =0
 
-        # Add children to the heap with estimated cost
-        # action_cost= 0
+            # visited.append(node_position)
+
         for child in children:
             action_cost = 0
             inside_polygon = False
             for p in p2:
-                if p.contains_point([child.x, child.y], radius=-.5):
+                if p.contains_point([child.x, child.y], radius=-0.5):
                     inside_polygon = True
                     child.current_node_cost = curr_node.current_node_cost + 1.5
                     action_cost = child.current_node_cost
@@ -97,11 +101,14 @@ def gbfs(start, end, p1, p2):
     visited = []
     path = []
     priorityq.push(start, 0)
+    # totalcost=0
+
     while not priorityq.isEmpty():
         curr_node = priorityq.pop()
 
         if curr_node.x == end.x and curr_node.y == end.y:
             current = curr_node
+            # print(totalcost)
             while current is not None:
                 path.append(Point(current.x, current.y))
                 current = current.parent
@@ -142,6 +149,7 @@ def gbfs(start, end, p1, p2):
             en = end.to_tuple()
             estimated_cost = math.sqrt((le[0] - en[0]) ** 2 + (le[1] - en[1]) ** 2)
 
+
             priorityq.update(child, estimated_cost)
     return None
 
@@ -161,7 +169,6 @@ def dfs(start, end, p1, p2):
     while not stack.isEmpty():
         curr_node = stack.pop()
 
-
         if curr_node.x == end.x and curr_node.y == end.y:
             current = curr_node
             while current is not None:
@@ -175,7 +182,6 @@ def dfs(start, end, p1, p2):
 
             # Get node position
             node_position = [curr_node.x + new_position[0], curr_node.y + new_position[1]]
-
 
             # Make sure within range
             if node_position[0] >= 50 or node_position[0] < 0 or node_position[1] >= 50 or node_position[1] < 0:
@@ -202,7 +208,6 @@ def dfs(start, end, p1, p2):
             stack.push(new_node)
             visited.append(node_position)
 
-
         # Add children to the stack
         # for child in children[::-1]:
         #     stack.push(child)
@@ -210,7 +215,6 @@ def dfs(start, end, p1, p2):
 
 
 def bfs(start, end, p1, p2):
-
     queue = Queue()
     visited = []
     path = []
@@ -251,8 +255,6 @@ def bfs(start, end, p1, p2):
             if inside_polygon:
                 continue
 
-
-
             # Create new node
             new_node = Point(node_position[0], node_position[1])
             new_node.parent = cur_node
@@ -269,15 +271,27 @@ def bfs(start, end, p1, p2):
 
 
 if __name__ == "__main__":
-    epolygons = gen_polygons('TestingGrid/world1_enclosures.txt')
-    tpolygons = gen_polygons('TestingGrid/world1_turfs.txt')
+
+    # for the project
+    # epolygons = gen_polygons('TestingGrid/world1_enclosures.txt')
+    # tpolygons = gen_polygons('TestingGrid/world1_turfs.txt')
+
+    # my own enclosure and turf
+    epolygons = gen_polygons('TestingGrid/world2_enclosures.txt')
+    tpolygons = gen_polygons('TestingGrid/world2_turfs.txt')
+
+
     # print(tpolygons)
     # print(tpolygons)
 
     # source = Point(24, 17)
     # dest = Point(28, 20)
+
     source = Point(8, 10)
     dest = Point(43, 45)
+
+    # source = Point(32, 21)
+    # dest = Point(33, 22)
 
     fig, ax = draw_board()
     draw_grids(ax)
@@ -327,13 +341,12 @@ if __name__ == "__main__":
     # vertices2 = np.asarray(vertices, float)
     # p2 = Path(vertices2)
 
-
     # for p in epolygons:
     #     print(p)
     #     vertice=[]
     polygonEPath = []
     for polygon in epolygons:
-        vertice=[]
+        vertice = []
         for point in polygon:
             vertice.append([point.x, point.y])
         vertices = np.asarray(vertice, float)
@@ -349,25 +362,21 @@ if __name__ == "__main__":
         p1 = Path(vertices)
         polygonTPath.append(p1)
 
-
-
-
-
-
     print("Weclome to the pathfinding Maze game.")
     print("Select and option below")
     print("1- DFS")
     print("2- BSF")
     print("3- Greedy Best First Search")
     print("4- A* search")
+    # print("5- Exit")
     # x= input("What pathfinding algorithm you like to perform")
     #
     # choice = input("What's the programming language you want to learn? ")
-    res_path= []
+    res_path = []
 
     while True:
         choice = int(input("What pathfinding algorithm you like to perform: "))
-        if  1 <= int(choice) <= 4:
+        if 1 <= int(choice) <= 4:
             break
         else:
             print("Invalid input. Please enter a number from 1 to 4: ")
@@ -377,15 +386,13 @@ if __name__ == "__main__":
             res_path = dfs(source, dest, polygonEPath, polygonTPath)
 
         case 2:
-            res_path = bfs(source, dest, polygonEPath,  polygonTPath)
+            res_path = bfs(source, dest, polygonEPath, polygonTPath)
 
         case 3:
-            res_path = gbfs(source, dest, polygonEPath,  polygonTPath)
+            res_path = gbfs(source, dest, polygonEPath, polygonTPath)
 
         case 4:
-            res_path = a_star(source, dest, polygonEPath,  polygonTPath)
-
-
+            res_path = a_star(source, dest, polygonEPath, polygonTPath)
 
     # res_path = bfs(source, dest, p1, p2)
 
