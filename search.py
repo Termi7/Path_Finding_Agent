@@ -31,14 +31,17 @@ def a_star(start, end, p1, p2):
     path = []
     priorityq.push(start, 0)
     start.current_node_cost = 0
-    estimated_cost=0
+    estimated_cost = 0
+    num_nodes_expanded = 0
 
     while not priorityq.isEmpty():
         curr_node = priorityq.pop()
+        num_nodes_expanded += 1
 
         if curr_node.x == end.x and curr_node.y == end.y:
             current = curr_node
-            print(curr_node.current_node_cost+ estimated_cost)
+            print("cost of the path", curr_node.current_node_cost)
+            print("number of nodes explored:", num_nodes_expanded)
             while current is not None:
                 path.append(Point(current.x, current.y))
                 current = current.parent
@@ -57,12 +60,11 @@ def a_star(start, end, p1, p2):
             # Check if node is within the polygon
             inside_polygon = False
             for p in p1:
-                if p.contains_point(node_position, radius=-.5):
+                if p.contains_point(node_position, radius=-.5) or p.contains_point(node_position, radius=.5):
                     inside_polygon = True
                     break
             if inside_polygon:
                 continue
-
 
             node_position = tuple(node_position)
             # Make sure not visited and that you have a better cost
@@ -82,7 +84,7 @@ def a_star(start, end, p1, p2):
             action_cost = 0
             inside_polygon = False
             for p in p2:
-                if p.contains_point([child.x, child.y], radius=-0.5):
+                if p.contains_point(node_position, radius=-.5) or p.contains_point(node_position, radius=.5):
                     inside_polygon = True
                     child.current_node_cost = curr_node.current_node_cost + 1.5
                     action_cost = child.current_node_cost
@@ -101,13 +103,19 @@ def gbfs(start, end, p1, p2):
     visited = []
     path = []
     priorityq.push(start, 0)
+    start.current_node_cost = 0
+    num_nodes_expanded = 0
     # totalcost=0
 
     while not priorityq.isEmpty():
         curr_node = priorityq.pop()
+        num_nodes_expanded += 1
 
         if curr_node.x == end.x and curr_node.y == end.y:
             current = curr_node
+            print("number of nodes explored:", num_nodes_expanded)
+            print("path cost is:", curr_node.current_node_cost)
+
             # print(totalcost)
             while current is not None:
                 path.append(Point(current.x, current.y))
@@ -126,7 +134,7 @@ def gbfs(start, end, p1, p2):
 
             inside_polygon = False
             for p in p1:
-                if p.contains_point(node_position, radius=-1):
+                if p.contains_point(node_position, radius=-.5) or p.contains_point(node_position, radius=.5):
                     inside_polygon = True
                     break
             if inside_polygon:
@@ -145,10 +153,20 @@ def gbfs(start, end, p1, p2):
 
         # Add children to the heap with estimated cost
         for child in children:
+            # calculate the path cost of the action
+            inside_polygon = False
+            for p in p2:
+                if p.contains_point(node_position, radius=-.5) or p.contains_point(node_position, radius=.5):
+                    inside_polygon = True
+                    child.current_node_cost = curr_node.current_node_cost + 1.5
+                break
+            if not inside_polygon:
+                child.current_node_cost = curr_node.current_node_cost + 1
+
+            # estimate the estimate cost but find the heuristic distance
             le = child.to_tuple()
             en = end.to_tuple()
             estimated_cost = math.sqrt((le[0] - en[0]) ** 2 + (le[1] - en[1]) ** 2)
-
 
             priorityq.update(child, estimated_cost)
     return None
@@ -158,6 +176,7 @@ def dfs(start, end, p1, p2):
     stack = Stack()
     visited = []
     path = []
+    num_nodes_expanded = 0
 
     # Create Paths from epolygons
     # paths = [Path(np.asarray(polygon)) for polygon in epolygons]
@@ -165,15 +184,20 @@ def dfs(start, end, p1, p2):
     stack.push(start)
     le = start.to_tuple()
     visited.append(le)
+    start.current_node_cost = 0
 
     while not stack.isEmpty():
         curr_node = stack.pop()
+        num_nodes_expanded += 1
 
         if curr_node.x == end.x and curr_node.y == end.y:
             current = curr_node
+            print("number of nodes explored:", num_nodes_expanded)
+            print("path cost is :", curr_node.current_node_cost)
             while current is not None:
                 path.append(Point(current.x, current.y))
                 current = current.parent
+
             return path[::-1]
 
         children = []
@@ -193,7 +217,7 @@ def dfs(start, end, p1, p2):
 
             inside_polygon = False
             for p in p1:
-                if p.contains_point(node_position, radius=-.5):
+                if p.contains_point(node_position, radius=-.5) or p.contains_point(node_position, radius=.5):
                     inside_polygon = True
                     break
             if inside_polygon:
@@ -203,6 +227,7 @@ def dfs(start, end, p1, p2):
             # Create new node
             new_node = Point(node_position[0], node_position[1])
             new_node.parent = curr_node
+            new_node.current_node_cost = curr_node.current_node_cost + 1
 
             children.append(new_node)
             stack.push(new_node)
@@ -220,13 +245,18 @@ def bfs(start, end, p1, p2):
     path = []
 
     queue.push(start)
+    num_nodes_expanded = 0
+    start.current_node_cost = 0
 
     while not queue.isEmpty():
 
         # print(path)
         cur_node = queue.pop()
+        num_nodes_expanded += 1
         if cur_node.x == end.x and cur_node.y == end.y:
             current = cur_node
+            print("number of nodes explored:", num_nodes_expanded)
+            print("path cost is :", cur_node.current_node_cost)
             while current is not None:
                 path.append(Point(current.x, current.y))
                 current = current.parent
@@ -249,7 +279,7 @@ def bfs(start, end, p1, p2):
 
             inside_polygon = False
             for p in p1:
-                if p.contains_point(node_position, radius=-.5):
+                if p.contains_point(node_position, radius=-.5) or p.contains_point(node_position, radius=.5):
                     inside_polygon = True
                     break
             if inside_polygon:
@@ -258,6 +288,7 @@ def bfs(start, end, p1, p2):
             # Create new node
             new_node = Point(node_position[0], node_position[1])
             new_node.parent = cur_node
+            new_node.current_node_cost = cur_node.current_node_cost + 1
 
             # Append
             children.append(new_node)
@@ -272,17 +303,36 @@ def bfs(start, end, p1, p2):
 
 if __name__ == "__main__":
 
+    print("Welcome to the pathfinding Maze game.")
+    print("Select an option below")
+    print("1- Provided testing case")
+    print("2- My created testing case")
+    while True:
+        choice = int(input("What testing case would you like to use: "))
+        if 1 <= int(choice) <= 2:
+            break
+        else:
+            print("Invalid input. Please enter a number 1 or 2: ")
+
+    match choice:
+        case 1:
+            epolygons = gen_polygons('TestingGrid/world1_enclosures.txt')
+            tpolygons = gen_polygons('TestingGrid/world1_turfs.txt')
+
+        case 2:
+            epolygons = gen_polygons('TestingGrid/world2_enclosures.txt')
+            tpolygons = gen_polygons('TestingGrid/world2_turfs.txt')
+
     # for the project
     # epolygons = gen_polygons('TestingGrid/world1_enclosures.txt')
     # tpolygons = gen_polygons('TestingGrid/world1_turfs.txt')
 
     # my own enclosure and turf
-    epolygons = gen_polygons('TestingGrid/world2_enclosures.txt')
-    tpolygons = gen_polygons('TestingGrid/world2_turfs.txt')
-
+    # epolygons = gen_polygons('TestingGrid/world2_enclosures.txt')
+    # tpolygons = gen_polygons('TestingGrid/world2_turfs.txt')
 
     # print(tpolygons)
-    # print(tpolygons)
+    # print(epolygons)
 
     # source = Point(24, 17)
     # dest = Point(28, 20)
@@ -362,16 +412,14 @@ if __name__ == "__main__":
         p1 = Path(vertices)
         polygonTPath.append(p1)
 
-    print("Weclome to the pathfinding Maze game.")
-    print("Select and option below")
+    print("Select an option below")
     print("1- DFS")
     print("2- BSF")
     print("3- Greedy Best First Search")
     print("4- A* search")
     # print("5- Exit")
     # x= input("What pathfinding algorithm you like to perform")
-    #
-    # choice = input("What's the programming language you want to learn? ")
+
     res_path = []
 
     while True:
@@ -410,6 +458,6 @@ if __name__ == "__main__":
     if res_path is not None:
         for i in range(len(res_path) - 1):
             draw_result_line(ax, [res_path[i].x, res_path[i + 1].x], [res_path[i].y, res_path[i + 1].y])
-            # plt.pause(0.1)
+            plt.pause(0.1)
 
     plt.show()
