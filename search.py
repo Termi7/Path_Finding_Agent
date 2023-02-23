@@ -11,6 +11,11 @@ from grid import *
 
 
 def gen_polygons(worldfilepath):
+    """
+                This function read the form the files and make the polygon out of the point and return them
+                :param str worldfilepath: the path of the file to read
+                :return:  polygons
+                """
     polygons = []
     with open(worldfilepath, "r") as f:
         lines = f.readlines()
@@ -26,6 +31,14 @@ def gen_polygons(worldfilepath):
 
 
 def a_star(start, end, p1, p2):
+    """
+            This function execute A star  and return the path
+            :param object start: starting point object
+            :param object end: destination point object
+            :param list p1:  path made by the enclosures
+            :param list p2: path made by the turfs
+            :return: path
+            """
     priorityq = PriorityQueue()
     visited = {}
     path = []
@@ -78,8 +91,6 @@ def a_star(start, end, p1, p2):
             # Append
             children.append(new_node)
 
-            # visited.append(node_position)
-
         for child in children:
             action_cost = 0
             inside_polygon = False
@@ -99,13 +110,20 @@ def a_star(start, end, p1, p2):
 
 
 def gbfs(start, end, p1, p2):
+    """
+            This function execute gbfs and return the path
+            :param object start: starting point object
+            :param object end: destination point object
+            :param list p1:  path made by the enclosures
+            :param list p2: path made by the turfs
+            :return: path
+            """
     priorityq = PriorityQueue()
     visited = []
     path = []
     priorityq.push(start, 0)
     start.current_node_cost = 0
     num_nodes_expanded = 0
-    # totalcost=0
 
     while not priorityq.isEmpty():
         curr_node = priorityq.pop()
@@ -116,7 +134,6 @@ def gbfs(start, end, p1, p2):
             print("number of nodes explored:", num_nodes_expanded)
             print("path cost is:", curr_node.current_node_cost)
 
-            # print(totalcost)
             while current is not None:
                 path.append(Point(current.x, current.y))
                 current = current.parent
@@ -173,13 +190,18 @@ def gbfs(start, end, p1, p2):
 
 
 def dfs(start, end, p1, p2):
+    """
+            This function execute dfs and return the path
+            :param object start: starting point object
+            :param object end: destination point object
+            :param list p1:  path made by the enclosures
+            :param list p2: path made by the turfs
+            :return: path
+            """
     stack = Stack()
     visited = []
     path = []
     num_nodes_expanded = 0
-
-    # Create Paths from epolygons
-    # paths = [Path(np.asarray(polygon)) for polygon in epolygons]
 
     stack.push(start)
     le = start.to_tuple()
@@ -202,7 +224,6 @@ def dfs(start, end, p1, p2):
 
         children = []
         for new_position in [(0, 1), (1, 0), (0, -1), (-1, 0)]:  # Up, right, down, and left
-            # print(new_position)
 
             # Get node position
             node_position = [curr_node.x + new_position[0], curr_node.y + new_position[1]]
@@ -223,7 +244,6 @@ def dfs(start, end, p1, p2):
             if inside_polygon:
                 continue
 
-            # print(node_position)
             # Create new node
             new_node = Point(node_position[0], node_position[1])
             new_node.parent = curr_node
@@ -232,14 +252,18 @@ def dfs(start, end, p1, p2):
             children.append(new_node)
             stack.push(new_node)
             visited.append(node_position)
-
-        # Add children to the stack
-        # for child in children[::-1]:
-        #     stack.push(child)
     return None
 
 
 def bfs(start, end, p1, p2):
+    """
+        This function execute bfs and return the path
+        :param object start: starting point object
+        :param object end: destination point object
+        :param list p1:  path made by the enclosures
+        :param list p2: path made by the turfs
+        :return: path
+        """
     queue = Queue()
     visited = []
     path = []
@@ -292,7 +316,6 @@ def bfs(start, end, p1, p2):
 
             # Append
             children.append(new_node)
-            # queue.push(new_node)
             visited.append(node_position)
 
         for child in children:
@@ -366,34 +389,6 @@ if __name__ == "__main__":
             draw_green_line(ax, [polygon[i].x, polygon[(i + 1) % len(polygon)].x],
                             [polygon[i].y, polygon[(i + 1) % len(polygon)].y])
 
-    #### Here call your search to compute and collect res_path
-    # polygonEPath = []
-
-    # s1 = (sum(epolygons, []))
-    #
-    # vertices = []
-    # for point in s1:
-    #     vertices.append([point.x, point.y])
-    # vertices = np.asarray(vertices, float)
-    #
-    # p1 = Path(vertices)
-    #
-    #
-    # # for s in polygonEPath:
-    # #     print(s)
-    # # print(polygonEPath)
-    #
-    # ####
-    # vertices = []
-    # s2 = (sum(tpolygons, []))
-    # for points in s2:
-    #     vertices.append([points.x, points.y])
-    # vertices2 = np.asarray(vertices, float)
-    # p2 = Path(vertices2)
-
-    # for p in epolygons:
-    #     print(p)
-    #     vertice=[]
     polygonEPath = []
     for polygon in epolygons:
         vertice = []
@@ -417,8 +412,6 @@ if __name__ == "__main__":
     print("2- BSF")
     print("3- Greedy Best First Search")
     print("4- A* search")
-    # print("5- Exit")
-    # x= input("What pathfinding algorithm you like to perform")
 
     res_path = []
 
@@ -441,16 +434,6 @@ if __name__ == "__main__":
 
         case 4:
             res_path = a_star(source, dest, polygonEPath, polygonTPath)
-
-    # res_path = bfs(source, dest, p1, p2)
-
-    # res_path = dfs(source, dest, p1, p2)
-
-    # res_path = gbfs(source, dest, p1, p2)
-
-    # res_path = a_star(source, dest, p1, p2)
-
-    # print(res_path)
 
     # res_path = [Point(24,17), Point(25,17), Point(26,17), Point(27,17),
     #             Point(28,17), Point(28,18), Point(28,19), Point(28,20)]
